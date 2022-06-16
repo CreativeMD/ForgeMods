@@ -1,0 +1,30 @@
+[submodule "AmbientSounds"]
+	path = AmbientSounds
+	url = https://github.com/CreativeMD/AmbientSounds.git
+[submodule "CMDCam"]
+	path = CMDCam
+	url = https://github.com/CreativeMD/CMDCam.git
+[submodule "CreativeCore"]
+	path = CreativeCore
+	url = https://github.com/CreativeMD/CreativeCore.git
+[submodule "CreativeLoaderForge"]
+	path = CreativeLoaderForge
+	url = https://github.com/CreativeMD/CreativeLoaderForge.git
+[submodule "EnhancedVisuals"]
+	path = EnhancedVisuals
+	url = https://github.com/CreativeMD/EnhancedVisuals.git
+[submodule "Friendermite"]
+	path = Friendermite
+	url = https://github.com/CreativeMD/FriendlyEndermite.git
+[submodule "ItemPhysic"]
+	path = ItemPhysic
+	url = https://github.com/CreativeMD/ItemPhysic.git
+[submodule "ItemPhysicLite"]
+	path = ItemPhysicLite
+	url = https://github.com/CreativeMD/ItemPhysicLite.git
+[submodule "OpticManager"]
+	path = OpticManager
+	url = https://github.com/CreativeMD/OpticManager.git
+[submodule "PlayerRevive"]
+	path = PlayerRevive
+	url = https://github.com/CreativeMD/PlayerRevive.git
