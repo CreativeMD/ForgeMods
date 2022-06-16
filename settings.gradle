@@ -1,0 +1,31 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven { url = 'https://maven.minecraftforge.net/' }
+    }
+}
+buildscript {
+    repositories {
+		mavenLocal()
+	}
+    dependencies {
+		classpath 'org.spongepowered:mixingradle:0.7.33'
+    }
+}
+
+rootProject.name = '1.19_forge'
+
+include 'CreativeCore'
+include 'CreativeLoaderForge'
+include 'workspace'
+
+include 'AmbientSounds'
+include 'CMDCam'
+include 'EnhancedVisuals'
+include 'Friendermite'
+include 'ItemPhysic'
+include 'ItemPhysicLite'
+include 'OpticManager'
+include 'PlayerRevive'
+//include 'LittleTiles'
+
