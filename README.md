@@ -16,4 +16,4 @@ Go back to the root directory and use it like any other mod repository. Feel fre
 ## Fabric
 
 A similar setup exists for Fabric:
-https://github.com/CreativeMD/ForgeFabric
+https://github.com/CreativeMD/FabricMods
