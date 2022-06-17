@@ -28,3 +28,6 @@
 [submodule "PlayerRevive"]
 	path = PlayerRevive
 	url = https://github.com/CreativeMD/PlayerRevive.git
+[submodule "MixinGradle"]
+	path = MixinGradle
+	url = https://github.com/CreativeMD/MixinGradle.git
