@@ -1,16 +1,16 @@
 pluginManagement {
-    repositories {
+    repositories {		
         gradlePluginPortal()
         maven { url = 'https://maven.minecraftforge.net/' }
     }
 }
 buildscript {
-    repositories {
-		mavenLocal()
-	}
-    dependencies {
-		classpath 'org.spongepowered:mixingradle:0.7.33'
-    }
+   repositories {
+       mavenLocal()
+   }
+   dependencies {
+       classpath 'org.spongepowered:mixingradle:0.7+'
+   }
 }
 
 rootProject.name = '1.19_forge'
