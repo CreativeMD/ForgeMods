@@ -31,3 +31,6 @@
 [submodule "MixinGradle"]
 	path = MixinGradle
 	url = https://github.com/CreativeMD/MixinGradle.git
+[submodule "LittleTiles"]
+	path = LittleTiles
+	url = https://github.com/TeamCreativeMods/LittleTiles.git
