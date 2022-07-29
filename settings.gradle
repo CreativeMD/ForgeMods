@@ -1,5 +1,5 @@
 pluginManagement {
-    repositories {		
+    repositories {
         gradlePluginPortal()
         maven { url = 'https://maven.minecraftforge.net/' }
     }
@@ -27,5 +27,5 @@ include 'ItemPhysic'
 include 'ItemPhysicLite'
 include 'OpticManager'
 include 'PlayerRevive'
-//include 'LittleTiles'
+include 'LittleTiles'
 
