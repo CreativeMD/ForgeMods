@@ -34,3 +34,6 @@
 [submodule "LittleTiles"]
 	path = LittleTiles
 	url = https://github.com/TeamCreativeMods/LittleTiles.git
+[submodule "LittleFrames"]
+	path = LittleFrames
+	url = https://github.com/CreativeMD/LittleFrames.git

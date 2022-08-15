@@ -28,4 +28,5 @@ include 'ItemPhysicLite'
 include 'OpticManager'
 include 'PlayerRevive'
 include 'LittleTiles'
+include 'LittleFrames'
 
