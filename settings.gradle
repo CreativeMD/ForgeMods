@@ -16,8 +16,6 @@ buildscript {
 rootProject.name = '1.19_forge'
 
 include 'CreativeCore'
-include 'CreativeLoaderForge'
-include 'workspace'
 
 include 'AmbientSounds'
 include 'CMDCam'
@@ -29,4 +27,4 @@ include 'OpticManager'
 include 'PlayerRevive'
 include 'LittleTiles'
 include 'LittleFrames'
-
+//include 'CreativeSurroundings'

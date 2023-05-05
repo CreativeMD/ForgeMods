@@ -7,9 +7,6 @@
 [submodule "CreativeCore"]
 	path = CreativeCore
 	url = https://github.com/CreativeMD/CreativeCore.git
-[submodule "CreativeLoaderForge"]
-	path = CreativeLoaderForge
-	url = https://github.com/CreativeMD/CreativeLoaderForge.git
 [submodule "EnhancedVisuals"]
 	path = EnhancedVisuals
 	url = https://github.com/CreativeMD/EnhancedVisuals.git
@@ -37,3 +34,7 @@
 [submodule "LittleFrames"]
 	path = LittleFrames
 	url = https://github.com/CreativeMD/LittleFrames.git
+[submodule "CreativeSurroundings"]
+	path = CreativeSurroundings
+	url = ../CreativeSurroundings.git
+	branch = 1.19
