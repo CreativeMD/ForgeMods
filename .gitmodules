@@ -34,7 +34,3 @@
 [submodule "LittleFrames"]
 	path = LittleFrames
 	url = https://github.com/CreativeMD/LittleFrames.git
-[submodule "CreativeSurroundings"]
-	path = CreativeSurroundings
-	url = ../CreativeSurroundings.git
-	branch = 1.19
