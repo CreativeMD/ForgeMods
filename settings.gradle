@@ -1,9 +1,13 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven { url = 'https://maven.minecraftforge.net/' }
+        maven {
+            name = 'MinecraftForge'
+            url = 'https://maven.minecraftforge.net/'
+        }
     }
 }
+
 buildscript {
    repositories {
        mavenLocal()
@@ -12,6 +16,10 @@ buildscript {
        classpath 'org.spongepowered:mixingradle:0.7+'
    }
 }
+
+/*plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.3.0'
+}*/
 
 rootProject.name = '1.19_forge'
 
@@ -27,4 +35,3 @@ include 'OpticManager'
 include 'PlayerRevive'
 include 'LittleTiles'
 include 'LittleFrames'
-//include 'CreativeSurroundings'
