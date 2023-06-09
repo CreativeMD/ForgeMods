@@ -21,7 +21,7 @@ plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.3.0'
 }
 
-rootProject.name = '1.19_forge'
+rootProject.name = '1.20_forge'
 
 include 'CreativeCore'
 
