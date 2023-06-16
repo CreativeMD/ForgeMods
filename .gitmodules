@@ -34,3 +34,6 @@
 [submodule "LittleFrames"]
 	path = LittleFrames
 	url = https://github.com/CreativeMD/LittleFrames.git
+[submodule "Spice-of-Life"]
+	path = Spice-of-Life
+	url = https://github.com/CreativeMD/Spice-of-Life-Sweet-Potato.git
