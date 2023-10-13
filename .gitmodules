@@ -34,10 +34,6 @@
 	path = PlayerRevive
 	url = https://github.com/CreativeMD/PlayerRevive.git
 	branch = 1.20
-[submodule "MixinGradle"]
-	path = MixinGradle
-	url = https://github.com/CreativeMD/MixinGradle.git
-	branch = 1.20
 [submodule "LittleTiles"]
 	path = LittleTiles
 	url = https://github.com/CreativeMD/LittleTiles.git
@@ -50,3 +46,7 @@
 	path = Spice-of-Life
 	url = https://github.com/CreativeMD/Spice-of-Life-Sweet-Potato.git
 	branch = 1.20
+[submodule "SodiumForged"]
+	path = SodiumForged
+	url = https://github.com/CreativeMD/SodiumForged.git
+	branch = 1.20.1

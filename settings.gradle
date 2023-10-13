@@ -10,19 +10,27 @@ pluginManagement {
 
 buildscript {
     repositories {
-        mavenLocal()
+        maven {
+            url = "https://repo.spongepowered.org/repository/maven-public/"
+        }
+        maven {
+        	url = "https://mvnrepository.com/"
+        }
     }
     dependencies {
+        classpath 'com.diffplug.eclipse.apt:com.diffplug.eclipse.apt.gradle.plugin:3+'
         classpath 'org.spongepowered:mixingradle:0.7+'
     }
 }
 
 plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.3.0'
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.5.0'
 }
 
 rootProject.name = '1.20_forge'
 
+include 'SodiumForged'
+include 'IrisForged'
 include 'CreativeCore'
 
 include 'AmbientSounds'
