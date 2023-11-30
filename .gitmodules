@@ -46,7 +46,3 @@
 	path = Spice-of-Life
 	url = https://github.com/CreativeMD/Spice-of-Life-Sweet-Potato.git
 	branch = 1.20
-[submodule "SodiumForged"]
-	path = SodiumForged
-	url = https://github.com/CreativeMD/SodiumForged.git
-	branch = 1.20.1

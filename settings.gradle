@@ -29,7 +29,6 @@ plugins {
 
 rootProject.name = '1.20_forge'
 
-include 'SodiumForged'
 include 'CreativeCore'
 
 include 'AmbientSounds'
