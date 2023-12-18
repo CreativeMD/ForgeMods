@@ -1,0 +1,93 @@
+import groovy.json.*
+
+gradle.afterProject { project ->
+    if (project != rootProject) {
+        project.tasks.getByName("processResources") {
+            filesMatching('pack.mcmeta') {
+                processJsonFile([description: project.mod_name + " resources", pack_format: resource_pack_format,
+                "forge:resource_pack_format": resource_pack_format, "forge:data_pack_format": data_pack_format], getFile())
+            }
+            filesMatching('META-INF/mods.toml') {
+                def lines = [
+                    'modLoader="javafml"',
+                    'loaderVersion="' + loader_version_range + '"',
+                    'issueTrackerURL="https://github.com/' + project.github_project + '/issues"',
+                    'license="' + mod_license + '"',
+                    '',
+                    '[[mods]]',
+                    '    modId="' + project.mod_id + '"',
+                    '    logoFile="' + project.mod_id + '.png"',
+                    '    version="' + project.mod_version + '"',
+                    '    displayName="' + project.mod_name + '"',
+                    '    displayURL="' + project.mod_display_url + '"',
+                    '    authors="' + project.mod_authors + '"',
+                    "    description='''" + project.mod_description + "'''",
+                    '',
+                    '[[dependencies.' + project.mod_id + ']]',
+                    '    modId="forge"',
+                    '    mandatory=true',
+                    '    versionRange="' + project.forge_version_range + '"',
+                    '    ordering="NONE"',
+                    '    side="BOTH"',
+                    '',
+                    '[[dependencies.' + project.mod_id + ']]',
+                    '    modId="minecraft"',
+                    '    mandatory=true',
+                    '    versionRange="' + project.minecraft_version_range + '"',
+                    '    ordering="NONE"',
+                    '    side="BOTH"',
+                    '',
+                ]
+                if (project.hasProperty("modDependencies")) {
+                    project.modDependencies.each {
+                        dependency -> {
+                            lines.add('[[dependencies.' + project.mod_id + ']]');
+                            dependency.each {
+                                entry -> {
+                                    if(entry.value instanceof Boolean || entry.value instanceof Number) {
+                                        lines.add('   ' + entry.key + '=' + entry.value)
+                                    } else {
+                                        lines.add('   ' + entry.key + '="' + entry.value + '"')
+                                    }
+                                }
+                            }
+                            lines.add('');
+                        }
+                    }                    
+                }
+                BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+                lines.each {
+                    line -> {
+                        writer.write(line)
+                        writer.newLine()
+                    }
+                }
+                writer.close();
+            }
+        }
+    }
+}
+
+void processJsonFile(properties, file) {
+    String fileContents = file.text.replaceAll(/\$\{[^}]*\}/, "0")
+    def input = new JsonSlurper().parseText(fileContents)
+    processJson(properties, input)
+    BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+    writer.write(JsonOutput.prettyPrint(JsonOutput.toJson(input)));
+    writer.close();
+}
+
+void processJson(properties, object) {
+    object.each {
+        entry -> {
+            if(entry.value instanceof Map) {
+                processJson(properties, entry.value)
+            } else if(properties.keySet().contains(entry.key)) {
+                entry.value = properties.get(entry.key)
+                if(entry.value.isNumber()) {
+                    entry.value = entry.value.toInteger()
+                }
+            }
+        }
+    }
+}
