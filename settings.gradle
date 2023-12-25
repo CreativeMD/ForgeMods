@@ -1,10 +1,7 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven {
-            name = 'MinecraftForge'
-            url = 'https://maven.minecraftforge.net/'
-        }
+        maven { url = 'https://maven.neoforged.net/releases' }
     }
 }
 
@@ -27,7 +24,7 @@ plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.5.0'
 }
 
-rootProject.name = '1.20_forge'
+rootProject.name = '1.20.4_forge'
 
 include 'CreativeCore'
 
@@ -39,7 +36,7 @@ include 'ItemPhysic'
 include 'ItemPhysicLite'
 include 'OpticManager'
 include 'PlayerRevive'
-include 'LittleTiles'
-include 'LittleTilesImportOld'
-include 'LittleFrames'
+//include 'LittleTiles'
+//include 'LittleTilesImportOld'
+//include 'LittleFrames'
 include 'Spice-of-Life'

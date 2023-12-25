@@ -3,6 +3,7 @@ import groovy.json.*
 gradle.afterProject { project ->
     if (project != rootProject) {
         project.tasks.getByName("processResources") {
+            outputs.upToDateWhen { false }
             filesMatching('pack.mcmeta') {
                 processJsonFile([description: project.mod_name + " resources", pack_format: resource_pack_format,
                 "forge:resource_pack_format": resource_pack_format, "forge:data_pack_format": data_pack_format], getFile())
@@ -24,15 +25,15 @@ gradle.afterProject { project ->
                     "    description='''" + project.mod_description + "'''",
                     '',
                     '[[dependencies.' + project.mod_id + ']]',
-                    '    modId="forge"',
-                    '    mandatory=true',
+                    '    modId="neoforge"',
+                    '    type="required"',
                     '    versionRange="' + project.forge_version_range + '"',
                     '    ordering="NONE"',
                     '    side="BOTH"',
                     '',
                     '[[dependencies.' + project.mod_id + ']]',
                     '    modId="minecraft"',
-                    '    mandatory=true',
+                    '    type="required"',
                     '    versionRange="' + project.minecraft_version_range + '"',
                     '    ordering="NONE"',
                     '    side="BOTH"',
@@ -55,6 +56,16 @@ gradle.afterProject { project ->
                         }
                     }                    
                 }
+                if (project.hasProperty("modMixins") && project.modMixins instanceof List && !project.modMixins.isEmpty()) {
+                    project.modMixins.each {
+                        config -> {
+                            lines.add('[[mixins]]');
+                            lines.add('   config="' + config + '"')
+                            lines.add('');  
+                        }
+                    }				
+                }
+				
                 BufferedWriter writer = new BufferedWriter(new FileWriter(file));
                 lines.each {
                     line -> {
@@ -65,7 +76,110 @@ gradle.afterProject { project ->
                 writer.close();
             }
         }
+        
+        project.jar {
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
+            archiveFileName.set(project.mod_name + "_FORGE_v" + project.mod_version + "_mc" + project.minecraft_version + ".jar")
+            manifest {
+                attributes([
+                    "Specification-Title": project.mod_name,
+                    "Specification-Vendor": "CreativeMD",
+                    "Specification-Version": project.mod_version,
+                    "Implementation-Title": project.mod_name,
+                    "Implementation-Version"  : project.mod_version,
+                    "Implementation-Vendor": "CreativeMD",
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+                ])
+            }
+        }
+        
+        project.tasks.withType(JavaCompile).configureEach {
+            options.encoding = 'UTF-8'
+        }
+        
+        project.tasks.register('upload', GradleBuild) {
+            description 'Uploads new version to modrinth and curseforge.'
+            group = 'publishing'
+            tasks = ['modrinth', 'curseforge']
+        }
+        
+        project.gradle.taskGraph.whenReady {
+            if (it.hasTask(project.tasks.modrinth) || it.hasTask(project.tasks.curseforge)) {
+                if (!getChangelogText(project)?.trim()) {
+                    throw new GradleException('No changelog provided')
+                }
+            }
+        }
+        
+        project.tasks.modrinth.enabled = System.getenv("MODRINTH_TOKEN") != null
+        project.tasks.modrinth.group = 'publishing'
+        project.modrinth {
+            token = System.getenv("MODRINTH_TOKEN")
+            if (project.hasProperty("modrinth_id")) {
+                projectId = project.modrinth_id
+            } else {
+                projectId = project.mod_id
+            }
+            versionNumber = project.mod_version
+            versionType = project.release_type
+            uploadFile = project.jar
+            gameVersions = [ project.minecraft_version ]
+            changelog = getChangelogText(project)
+            loaders = [ "neoforge" ]
+            dependencies {
+                if (project.hasProperty("modDependencies")) {
+                    project.modDependencies.each {
+                        dependency -> {
+                            required.project dependency["modId"]
+                        }
+                    }                    
+                }
+            }
+        }
+        
+        project.tasks.curseforge.enabled = System.getenv("CURSEFORGE_TOKEN") != null
+        project.tasks.curseforge.group = 'publishing'
+        project.curseforge.apiKey = System.getenv("CURSEFORGE_TOKEN")
+        project.curseforge.project {
+            id = project.curse_id
+            changelog = getChangelogText(project)
+            changelogType = "markdown"
+            addGameVersion project.minecraft_version
+            addGameVersion "NeoForge"
+            releaseType = project.release_type
+            mainArtifact(project.jar) {
+            }
+            if (project.hasProperty("modDependencies") && !project.modDependencies.isEmpty()) {
+                relations {
+                    project.modDependencies.each {
+                        dependency -> {
+                            requiredLibrary dependency["modId"]
+                        }
+                    }                    
+                }
+            }
+        }
     }
+}
+
+String getChangelogText(project) {
+    String result = ''
+    boolean first = true
+    project.file('changelog.txt').readLines().find {
+        if (first) {
+            if (it.equals(project.mod_version)) {
+                first = false
+            }
+            return false
+        } else if (!it?.trim()) {
+            return true
+        } else {
+            result += "* " + it + "\n"
+            return false
+        }
+    }
+    
+    return result
 }
 
 void processJsonFile(properties, file) {
