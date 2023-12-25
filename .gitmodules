@@ -46,3 +46,7 @@
 	path = Spice-of-Life
 	url = https://github.com/CreativeMD/Spice-of-Life-Sweet-Potato.git
 	branch = 1.20
+[submodule "LittleTilesImportOld"]
+	path = LittleTilesImportOld
+	url = https://github.com/CreativeMD/LittleTilesImportOld.git
+	branch = main
