@@ -127,7 +127,7 @@ gradle.afterProject { project ->
             changelog = getChangelogText(project)
             loaders = [ "neoforge" ]
             dependencies {
-                if (project.hasProperty("modDependencies")) {
+                if (project.hasProperty("modDependencies") && project.modDependencies instanceof List) {
                     project.modDependencies.each {
                         dependency -> {
                             required.project dependency["modId"]
@@ -149,7 +149,7 @@ gradle.afterProject { project ->
             releaseType = project.release_type
             mainArtifact(project.jar) {
             }
-            if (project.hasProperty("modDependencies") && !project.modDependencies.isEmpty()) {
+            if (project.hasProperty("modDependencies") && project.modDependencies instanceof List && !project.modDependencies.isEmpty()) {
                 relations {
                     project.modDependencies.each {
                         dependency -> {
