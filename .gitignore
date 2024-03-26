@@ -14,6 +14,8 @@ hs_err_pid*
 # Gradlew #
 .gradle/
 build/
+**/.idea
+.idea
 *.launch
 *.classpath
 *.project
