@@ -14,7 +14,6 @@ hs_err_pid*
 # Gradlew #
 .gradle/
 build/
-**/.idea
 .idea
 *.launch
 *.classpath
@@ -22,6 +21,7 @@ build/
 *.factorypath
 bin/
 run/
+runs/
 .settings/
 /.apt_generated/
 /.apt_generated_tests/
