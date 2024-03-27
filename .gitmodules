@@ -37,4 +37,4 @@
 [submodule "MixinGradle"]
 	path = MixinGradle
 	url = https://github.com/CreativeMD/MixinGradle.git
-	branch = 1.20
+	branch = master
