@@ -1,35 +1,35 @@
 [submodule "AmbientSounds"]
 	path = AmbientSounds
 	url = https://github.com/CreativeMD/AmbientSounds.git
-	branch = 1.20
+	branch = 1.18
 [submodule "CMDCam"]
 	path = CMDCam
 	url = https://github.com/CreativeMD/CMDCam.git
-	branch = 1.20
+	branch = 1.18
 [submodule "CreativeCore"]
 	path = CreativeCore
 	url = https://github.com/CreativeMD/CreativeCore.git
-	branch = 1.20
+	branch = 1.18-reworked
 [submodule "EnhancedVisuals"]
 	path = EnhancedVisuals
 	url = https://github.com/CreativeMD/EnhancedVisuals.git
-	branch = 1.20
+	branch = 1.18
 [submodule "Friendermite"]
 	path = Friendermite
 	url = https://github.com/CreativeMD/FriendlyEndermite.git
-	branch = 1.19
+	branch = 1.18
 [submodule "ItemPhysic"]
 	path = ItemPhysic
 	url = https://github.com/CreativeMD/ItemPhysic.git
-	branch = 1.20
+	branch = 1.18
 [submodule "ItemPhysicLite"]
 	path = ItemPhysicLite
 	url = https://github.com/CreativeMD/ItemPhysicLite.git
-	branch = 1.20
+	branch = 1.18
 [submodule "OpticManager"]
 	path = OpticManager
 	url = https://github.com/CreativeMD/OpticManager.git
-	branch = 1.20
+	branch = 1.18
 [submodule "PlayerRevive"]
 	path = PlayerRevive
 	url = https://github.com/CreativeMD/PlayerRevive.git
@@ -37,16 +37,4 @@
 [submodule "MixinGradle"]
 	path = MixinGradle
 	url = https://github.com/CreativeMD/MixinGradle.git
-	branch = 1.20
-[submodule "LittleTiles"]
-	path = LittleTiles
-	url = https://github.com/CreativeMD/LittleTiles.git
-	branch = 1.20
-[submodule "LittleFrames"]
-	path = LittleFrames
-	url = https://github.com/CreativeMD/LittleFrames.git
-	branch = 1.20
-[submodule "Spice-of-Life"]
-	path = Spice-of-Life
-	url = https://github.com/CreativeMD/Spice-of-Life-Sweet-Potato.git
-	branch = 1.20
+	branch = master
