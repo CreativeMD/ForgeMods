@@ -139,7 +139,7 @@ gradle.afterProject { project ->
         
         project.tasks.curseforge.enabled = System.getenv("CURSEFORGE_TOKEN") != null
         project.tasks.curseforge.group = 'publishing'
-        project.curseforge.apiKey = System.getenv("CURSEFORGE_TOKEN")
+        project.curseforge.apiKey = System.getenv("CURSEFORGE_TOKEN") != null ? System.getenv("CURSEFORGE_TOKEN") : "empty"
         project.curseforge.project {
             id = project.curse_id
             changelog = getChangelogText(project)
