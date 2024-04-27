@@ -8,7 +8,7 @@ gradle.afterProject { project ->
                 processJsonFile([description: project.mod_name + " resources", pack_format: resource_pack_format,
                 "forge:resource_pack_format": resource_pack_format, "forge:data_pack_format": data_pack_format], getFile())
             }
-            filesMatching('META-INF/mods.toml') {
+            filesMatching('META-INF/neoforge.mods.toml') {
                 def lines = [
                     'modLoader="javafml"',
                     'loaderVersion="' + loader_version_range + '"',
@@ -23,6 +23,10 @@ gradle.afterProject { project ->
                     '    displayURL="' + project.mod_display_url + '"',
                     '    authors="' + project.mod_authors + '"',
                     "    description='''" + project.mod_description + "'''",
+                ]
+                if (project.hasProperty("modProperties"))
+                    lines.addAll(project.modProperties);
+                lines.addAll([
                     '',
                     '[[dependencies.' + project.mod_id + ']]',
                     '    modId="neoforge"',
@@ -38,7 +42,7 @@ gradle.afterProject { project ->
                     '    ordering="NONE"',
                     '    side="BOTH"',
                     '',
-                ]
+                ]);
                 if (project.hasProperty("modDependencies")) {
                     project.modDependencies.each {
                         dependency -> {
@@ -92,6 +96,8 @@ gradle.afterProject { project ->
                 ])
             }
         }
+        
+        project.java.toolchain.languageVersion = JavaLanguageVersion.of(21)
         
         project.tasks.withType(JavaCompile).configureEach {
             options.encoding = 'UTF-8'
