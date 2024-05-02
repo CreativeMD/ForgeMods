@@ -24,7 +24,7 @@ gradle.afterProject { project ->
                     '    authors="' + project.mod_authors + '"',
                     "    description='''" + project.mod_description + "'''",
                 ]
-                if (project.hasProperty("modProperties"))
+                if (project.hasProperty("modProperties") && project.modProperties != "[]")
                     lines.addAll(project.modProperties);
                 lines.addAll([
                     '',
