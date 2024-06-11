@@ -21,6 +21,7 @@ gradle.afterProject { project ->
                     '    version="' + project.mod_version + '"',
                     '    displayName="' + project.mod_name + '"',
                     '    displayURL="' + project.mod_display_url + '"',
+                    '    displayTest="' + project.mod_display_test + '"',
                     '    authors="' + project.mod_authors + '"',
                     "    description='''" + project.mod_description + "'''",
                     '',
