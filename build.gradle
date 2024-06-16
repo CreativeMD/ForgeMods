@@ -97,8 +97,6 @@ gradle.afterProject { project ->
             }
         }
         
-        project.java.toolchain.languageVersion = JavaLanguageVersion.of(21)
-        
         project.tasks.withType(JavaCompile).configureEach {
             options.encoding = 'UTF-8'
         }
