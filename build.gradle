@@ -1,3 +1,7 @@
+plugins {
+    id 'net.darkhax.curseforgegradle' version '1.1.+'
+}
+
 import groovy.json.*
 
 gradle.afterProject { project ->
@@ -141,25 +145,29 @@ gradle.afterProject { project ->
             }
         }
         
-        project.tasks.curseforge.enabled = System.getenv("CURSEFORGE_TOKEN") != null
-        project.tasks.curseforge.group = 'publishing'
-        project.curseforge.apiKey = System.getenv("CURSEFORGE_TOKEN") != null ? System.getenv("CURSEFORGE_TOKEN") : "empty"
-        project.curseforge.project {
-            id = project.curse_id
-            changelog = getChangelogText(project)
-            changelogType = "markdown"
-            addGameVersion project.minecraft_version
-            addGameVersion "NeoForge"
-            releaseType = project.release_type
-            mainArtifact(project.jar) {
+        project.tasks.register("curseforge", net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+            group = 'publishing'
+            apiToken = System.getenv("CURSEFORGE_TOKEN") != null ? System.getenv("CURSEFORGE_TOKEN") : "empty"
+            disableVersionDetection()
+            
+            def mainFile = upload(project.curse_id, project.jar)
+            mainFile.releaseType = project.release_type
+            mainFile.changelog = getChangelogText(project)
+            mainFile.changelogType = 'markdown'
+            mainFile.addModLoader("NeoForge")
+            mainFile.addGameVersion(project.minecraft_version)
+            if (project.hasProperty("modSides") && project.modSides instanceof List && !project.modSides.isEmpty()) {
+                project.modSides.each {
+                    side -> {
+                        addEnvironment(side)
+                    }
+                }
             }
             if (project.hasProperty("modDependencies") && project.modDependencies instanceof List && !project.modDependencies.isEmpty()) {
-                relations {
-                    project.modDependencies.each {
-                        dependency -> {
-                            requiredLibrary dependency["modId"]
-                        }
-                    }                    
+                project.modDependencies.each {
+                    dependency -> {
+                        mainFile.addRequirement(dependency["modId"])
+                    }
                 }
             }
         }
