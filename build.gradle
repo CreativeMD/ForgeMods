@@ -5,7 +5,8 @@ plugins {
 import groovy.json.*
 
 gradle.afterProject { project ->
-    if (project != rootProject) {        
+    if (project != rootProject) {
+        System.setProperty("line.separator", "\r\n");
         project.tasks.getByName("processResources") {
             outputs.upToDateWhen { false }
             filesMatching('pack.mcmeta') {
@@ -85,9 +86,16 @@ gradle.afterProject { project ->
             }
         }
         
+        project.java.withSourcesJar()
+        
+        def modFilePrefix = "NEOFORGE"
+        if (project.hasProperty("mod_release_suffix") && project.mod_release_suffix != "") {
+            modFilePrefix = project.mod_release_suffix
+        }
+        
         project.jar {
             duplicatesStrategy = DuplicatesStrategy.INCLUDE
-            archiveFileName.set(project.mod_name + "_NEOFORGE_v" + project.mod_version + "_mc" + project.minecraft_version + ".jar")
+            archiveFileName.set(project.mod_name + "_" + modFilePrefix + "_v" + project.mod_version + "_mc" + project.minecraft_version + ".jar")
             manifest {
                 attributes([
                     "Specification-Title": project.mod_name,
@@ -101,6 +109,10 @@ gradle.afterProject { project ->
             }
         }
         
+        project.sourcesJar {
+             archiveFileName.set(project.mod_name + "_" + modFilePrefix + "_SOURCE_v" + project.mod_version + "_mc" + project.minecraft_version + ".jar")
+        }
+        
         project.tasks.withType(JavaCompile).configureEach {
             options.encoding = 'UTF-8'
         }
@@ -112,7 +124,7 @@ gradle.afterProject { project ->
         }
         
         project.gradle.taskGraph.whenReady {
-            if (it.hasTask(project.tasks.modrinth) || it.hasTask(project.tasks.curseforge)) {
+            if (it.hasTask(project.tasks.modrinth) || (project.curse_id != "" && it.hasTask(project.tasks.curseforge))) {
                 if (!getChangelogText(project)?.trim()) {
                     throw new GradleException('No changelog provided')
                 }
@@ -143,32 +155,41 @@ gradle.afterProject { project ->
                     }                    
                 }
             }
+            additionalFiles = [ project.sourcesJar ]
         }
         
-        project.tasks.register("curseforge", net.darkhax.curseforgegradle.TaskPublishCurseForge) {
-            group = 'publishing'
-            apiToken = System.getenv("CURSEFORGE_TOKEN") != null ? System.getenv("CURSEFORGE_TOKEN") : "empty"
-            disableVersionDetection()
-            
-            def mainFile = upload(project.curse_id, project.jar)
-            mainFile.releaseType = project.release_type
-            mainFile.changelog = getChangelogText(project)
-            mainFile.changelogType = 'markdown'
-            mainFile.addModLoader("NeoForge")
-            mainFile.addGameVersion(project.minecraft_version)
-            if (project.hasProperty("modSides") && project.modSides instanceof List && !project.modSides.isEmpty()) {
-                project.modSides.each {
-                    side -> {
-                        addEnvironment(side)
+        if(project.curse_id != "") {
+            project.tasks.register("curseforge", net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+                group = 'publishing'
+                apiToken = System.getenv("CURSEFORGE_TOKEN") != null ? System.getenv("CURSEFORGE_TOKEN") : "empty"
+                disableVersionDetection()
+                
+                def mainFile = upload(project.curse_id, project.jar)
+                mainFile.releaseType = project.release_type
+                mainFile.changelog = getChangelogText(project)
+                mainFile.changelogType = 'markdown'
+                mainFile.addModLoader("NeoForge")
+                mainFile.addGameVersion(project.minecraft_version)
+                if (project.hasProperty("modSides") && project.modSides instanceof List && !project.modSides.isEmpty()) {
+                    project.modSides.each {
+                        side -> {
+                            mainFile.addEnvironment(side)
+                        }
+                    }
+                } else {
+                    mainFile.addEnvironment("client", "server")
+                }
+                if (project.hasProperty("modDependencies") && project.modDependencies instanceof List && !project.modDependencies.isEmpty()) {
+                    project.modDependencies.each {
+                        dependency -> {
+                            mainFile.addRequirement(dependency["modId"])
+                        }
                     }
                 }
-            }
-            if (project.hasProperty("modDependencies") && project.modDependencies instanceof List && !project.modDependencies.isEmpty()) {
-                project.modDependencies.each {
-                    dependency -> {
-                        mainFile.addRequirement(dependency["modId"])
-                    }
-                }
+                
+                def sourcesFile = mainFile.withAdditionalFile(project.sourcesJar)
+                sourcesFile.changelog = getChangelogText(project)
+                sourcesFile.changelogType = 'markdown'
             }
         }
     }
