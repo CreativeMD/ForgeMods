@@ -6,7 +6,6 @@ import groovy.json.*
 
 gradle.afterProject { project ->
     if (project != rootProject) {
-        System.setProperty("line.separator", "\r\n");
         project.tasks.getByName("processResources") {
             outputs.upToDateWhen { false }
             filesMatching('pack.mcmeta') {
@@ -79,7 +78,7 @@ gradle.afterProject { project ->
                 lines.each {
                     line -> {
                         writer.write(line)
-                        writer.newLine()
+                        writer.write("\r\n")
                     }
                 }
                 writer.close();
@@ -220,7 +219,7 @@ void processJsonFile(properties, file) {
     def input = new JsonSlurper().parseText(fileContents)
     processJson(properties, input)
     BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-    writer.write(JsonOutput.prettyPrint(JsonOutput.toJson(input)));
+    writer.write(JsonOutput.prettyPrint(JsonOutput.toJson(input)).replace("\n", "\r\n"));
     writer.close();
 }
 
