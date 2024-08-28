@@ -110,6 +110,8 @@ gradle.afterProject { project ->
         
         project.sourcesJar {
              archiveFileName.set(project.mod_name + "_" + modFilePrefix + "_SOURCE_v" + project.mod_version + "_mc" + project.minecraft_version + ".jar")
+             exclude('assets/*')
+             exclude('data/*')
         }
         
         project.tasks.withType(JavaCompile).configureEach {
