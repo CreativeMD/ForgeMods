@@ -9,7 +9,7 @@ plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
 }
 
-rootProject.name = '1.21_forge'
+rootProject.name = '1.21.x_forge'
 
 include ':CreativeCore'
 
