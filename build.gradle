@@ -121,7 +121,7 @@ gradle.afterProject { project ->
         project.tasks.register('upload', GradleBuild) {
             description 'Uploads new version to modrinth and curseforge.'
             group = 'publishing'
-            tasks = ['modrinth', 'curseforge']
+            tasks = ['curseforge', 'modrinth']
         }
         
         project.gradle.taskGraph.whenReady {
