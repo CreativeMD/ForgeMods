@@ -2,10 +2,126 @@ plugins {
     id 'net.darkhax.curseforgegradle' version '1.1.+'
 }
 
+import java.util.jar.*;
 import groovy.json.*
+import org.gradle.api.artifacts.*;
+import org.gradle.api.artifacts.transform.TransformParameters;
+
+abstract class DisableMod implements TransformAction<TransformParameters.None> {
+
+    @InputArtifact
+    abstract Provider<FileSystemLocation> getInputArtifact()
+    
+    @Inject
+    abstract ArchiveOperations getArchiveOperations()
+
+    @Override
+    void transform(TransformOutputs outputs) {
+        var originalJar = inputArtifact.get().asFile
+        if(!originalJar.exists())
+            return
+        var isMod = getArchiveOperations().zipTree(originalJar).any { it.name == "neoforge.mods.toml" || it.name == "fabric.mod.json" }
+        if (isMod) {
+            var target = outputs.file(originalJar.name.replace(".jar", "-disabled.jar"))
+            var input = new JarInputStream(originalJar.newInputStream())
+            var output = new JarOutputStream(target.newOutputStream(), input.manifest)
+            var jarEntry = input.nextJarEntry
+            while (jarEntry != null) {
+                if(jarEntry.name != "META-INF/neoforge.mods.toml" && jarEntry.name != "fabric.mod.json") {
+                    output.putNextEntry(jarEntry)
+                    output.write(input.readAllBytes())
+                    output.closeEntry()
+                }
+                jarEntry = input.nextJarEntry
+            }
+            output.closeEntry()
+            output.close()
+            input.close()
+            outputs.file(target)
+            return
+        }
+        outputs.file(inputArtifact)
+    }
+    
+}
+
+var noMod = Attribute.of("noMod", Boolean)
 
 gradle.afterProject { project ->
     if (project != rootProject) {
+        
+        //ModChecker.init(project)
+        
+        project.configurations {
+            var parent = implementation
+            modCompileOnly {
+                canBeConsumed = false
+                canBeResolved = false
+                transitive = false
+                attributes.attribute(noMod, true)
+                
+                // Copied from https://github.com/neoforged/ModDevGradle/blob/main/src/legacy/java/net/neoforged/moddevgradle/legacyforge/dsl/Obfuscation.java#L122
+                // Unfortunately, if we simply try to make the parent extend this config, transformations will not run because the parent doesn't request remapped deps
+                // If the parent were to request remapped deps, we'd be remapping everything in it.
+                // Therefore, we use a slight "hack" that imposes a constraint over all dependencies in this configuration: to be remapped.
+                // Additionally, we force dependencies to be non-transitive since we cannot apply the attribute hack to transitive dependencies.
+                withDependencies(dependencies -> dependencies.each { dep -> 
+                    if (dep instanceof ExternalModuleDependency) {
+                        ExternalModuleDependency externalModuleDependency = (ExternalModuleDependency) dep;
+                        project.getDependencies().constraints(constraints -> {
+                            constraints.add(parent.getName(), externalModuleDependency.getGroup() + ":" + externalModuleDependency.getName() + ":" + externalModuleDependency.getVersion(), c -> {
+                                c.attributes(a -> a.attribute(noMod, true));
+                            });
+                        });
+                        externalModuleDependency.setTransitive(false);
+                    } else if (dep instanceof FileCollectionDependency) {
+                        FileCollectionDependency fileCollectionDependency = (FileCollectionDependency) dep;
+                        project.getDependencies().constraints(constraints -> {
+                            constraints.add(parent.getName(), fileCollectionDependency.getFiles(), c -> {
+                                c.attributes(a -> a.attribute(noMod, true));
+                            });
+                        });
+                    } else if (dep instanceof ProjectDependency) {
+                        ProjectDependency projectDependency = (ProjectDependency) dep;
+                        project.getDependencies().constraints(constraints -> {
+                            constraints.add(parent.getName(), projectDependency.getDependencyProject(), c -> {
+                                c.attributes(a -> a.attribute(noMod, true));
+                            });
+                        });
+                        projectDependency.setTransitive(false);
+                    }
+                })
+            }
+            
+            implementation.extendsFrom(modCompileOnly)
+            
+            compileClasspath.attributes.attribute(noMod, false)
+            runtimeClasspath.attributes.attribute(noMod, false)
+            
+            compileClasspath.extendsFrom(modCompileOnly)
+            runtimeClasspath.extendsFrom(modCompileOnly)
+        }
+        
+        project.dependencies {
+            artifactTypes.maybeCreate("jar").attributes.attribute(noMod, false)
+            attributesSchema {
+                attribute(noMod)
+            }
+            registerTransform(DisableMod) {
+                from.attributes.attribute(noMod, false)
+                to.attributes.attribute(noMod, true)
+            }
+            if (project.modImplemented != "[]") {
+                project.modImplemented.each { mod -> 
+                    if (mod.disabled) {
+                        add("modCompileOnly", mod.name)
+                    } else {
+                        add("implementation", mod.name)
+                    }
+                }
+            }
+        }
+        
         project.tasks.getByName("processResources") {
             outputs.upToDateWhen { false }
             filesMatching('pack.mcmeta') {
