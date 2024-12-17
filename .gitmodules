@@ -50,3 +50,7 @@
 	path = LittleTilesImportOld
 	url = https://github.com/CreativeMD/LittleTilesImportOld.git
 	branch = main
+[submodule "NoDurabilityLost"]
+	path = NoDurabilityLost
+	url = https://github.com/CreativeMD/NoDurabilityLost.git
+	branch = 1.21
