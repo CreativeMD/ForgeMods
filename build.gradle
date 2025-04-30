@@ -6,6 +6,7 @@ import java.util.jar.*;
 import groovy.json.*
 import org.gradle.api.artifacts.*;
 import org.gradle.api.artifacts.transform.TransformParameters;
+import javax.inject.Inject
 
 abstract class DisableMod implements TransformAction<TransformParameters.None> {
 
@@ -65,32 +66,32 @@ gradle.afterProject { project ->
                 // If the parent were to request remapped deps, we'd be remapping everything in it.
                 // Therefore, we use a slight "hack" that imposes a constraint over all dependencies in this configuration: to be remapped.
                 // Additionally, we force dependencies to be non-transitive since we cannot apply the attribute hack to transitive dependencies.
-                withDependencies(dependencies -> dependencies.each { dep -> 
+                withDependencies{dependencies -> dependencies.each { dep -> 
                     if (dep instanceof ExternalModuleDependency) {
                         ExternalModuleDependency externalModuleDependency = (ExternalModuleDependency) dep;
-                        project.getDependencies().constraints(constraints -> {
-                            constraints.add(parent.getName(), externalModuleDependency.getGroup() + ":" + externalModuleDependency.getName() + ":" + externalModuleDependency.getVersion(), c -> {
-                                c.attributes(a -> a.attribute(noMod, true));
+                        project.getDependencies().constraints{constraints ->
+                            constraints.add(parent.getName(), externalModuleDependency.getGroup() + ":" + externalModuleDependency.getName() + ":" + externalModuleDependency.getVersion(), {c -> 
+                                c.attributes{a -> a.attribute(noMod, true)};
                             });
-                        });
+                        };
                         externalModuleDependency.setTransitive(false);
                     } else if (dep instanceof FileCollectionDependency) {
                         FileCollectionDependency fileCollectionDependency = (FileCollectionDependency) dep;
-                        project.getDependencies().constraints(constraints -> {
-                            constraints.add(parent.getName(), fileCollectionDependency.getFiles(), c -> {
-                                c.attributes(a -> a.attribute(noMod, true));
+                        project.getDependencies().constraints{constraints ->
+                            constraints.add(parent.getName(), fileCollectionDependency.getFiles(), {c -> 
+                                c.attributes{a -> a.attribute(noMod, true)};
                             });
-                        });
+                        };
                     } else if (dep instanceof ProjectDependency) {
                         ProjectDependency projectDependency = (ProjectDependency) dep;
-                        project.getDependencies().constraints(constraints -> {
-                            constraints.add(parent.getName(), projectDependency.getDependencyProject(), c -> {
-                                c.attributes(a -> a.attribute(noMod, true));
+                        project.getDependencies().constraints{constraints ->
+                            constraints.add(parent.getName(), projectDependency.getDependencyProject(), {c -> 
+                                c.attributes{a -> a.attribute(noMod, true)};
                             });
-                        });
+                        };
                         projectDependency.setTransitive(false);
                     }
-                })
+                }}
             }
             
             implementation.extendsFrom(modCompileOnly)
@@ -164,38 +165,31 @@ gradle.afterProject { project ->
                     '',
                 ]);
                 if (project.hasProperty("modDependencies")) {
-                    project.modDependencies.each {
-                        dependency -> {
-                            lines.add('[[dependencies.' + project.mod_id + ']]');
-                            dependency.each {
-                                entry -> {
-                                    if(entry.value instanceof Boolean || entry.value instanceof Number) {
-                                        lines.add('   ' + entry.key + '=' + entry.value)
-                                    } else {
-                                        lines.add('   ' + entry.key + '="' + entry.value + '"')
-                                    }
+                    project.modDependencies.each { dependency -> 
+                        lines.add('[[dependencies.' + project.mod_id + ']]');
+                        dependency.each { entry -> 
+                                if(entry.value instanceof Boolean || entry.value instanceof Number) {
+                                    lines.add('   ' + entry.key + '=' + entry.value)
+                                } else {
+                                    lines.add('   ' + entry.key + '="' + entry.value + '"')
                                 }
-                            }
-                            lines.add('');
+                            
                         }
+                        lines.add('');
                     }                    
                 }
                 if (project.hasProperty("modMixins") && project.modMixins instanceof List && !project.modMixins.isEmpty()) {
-                    project.modMixins.each {
-                        config -> {
-                            lines.add('[[mixins]]');
-                            lines.add('   config="' + config + '"')
-                            lines.add('');  
-                        }
-                    }				
+                    project.modMixins.each { config -> 
+                        lines.add('[[mixins]]');
+                        lines.add('   config="' + config + '"')
+                        lines.add('');  
+                    }        
                 }
-				
+        
                 BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                lines.each {
-                    line -> {
-                        writer.write(line)
-                        writer.write("\r\n")
-                    }
+                lines.each { line -> 
+                    writer.write(line)
+                    writer.write("\r\n")
                 }
                 writer.close();
             }
@@ -225,9 +219,9 @@ gradle.afterProject { project ->
         }
         
         project.sourcesJar {
-             archiveFileName.set(project.mod_name + "_" + modFilePrefix + "_SOURCE_v" + project.mod_version + "_mc" + project.minecraft_version + ".jar")
-             exclude('assets/*')
-             exclude('data/*')
+            archiveFileName.set(project.mod_name + "_" + modFilePrefix + "_SOURCE_v" + project.mod_version + "_mc" + project.minecraft_version + ".jar")
+            exclude('assets/*')
+            exclude('data/*')
         }
         
         project.tasks.withType(JavaCompile).configureEach {
@@ -265,10 +259,8 @@ gradle.afterProject { project ->
             loaders = [ "neoforge" ]
             dependencies {
                 if (project.hasProperty("modDependencies") && project.modDependencies instanceof List) {
-                    project.modDependencies.each {
-                        dependency -> {
-                            required.project dependency["modId"]
-                        }
+                    project.modDependencies.each { dependency -> 
+                        required.project dependency["modId"]
                     }                    
                 }
             }
@@ -288,19 +280,15 @@ gradle.afterProject { project ->
                 mainFile.addModLoader("NeoForge")
                 mainFile.addGameVersion(project.minecraft_version)
                 if (project.hasProperty("modSides") && project.modSides instanceof List && !project.modSides.isEmpty()) {
-                    project.modSides.each {
-                        side -> {
+                    project.modSides.each { side -> 
                             mainFile.addEnvironment(side)
                         }
-                    }
                 } else {
                     mainFile.addEnvironment("client", "server")
                 }
                 if (project.hasProperty("modDependencies") && project.modDependencies instanceof List && !project.modDependencies.isEmpty()) {
-                    project.modDependencies.each {
-                        dependency -> {
-                            mainFile.addRequirement(dependency["modId"])
-                        }
+                    project.modDependencies.each { dependency -> 
+                        mainFile.addRequirement(dependency["modId"])
                     }
                 }
                 
@@ -342,15 +330,13 @@ void processJsonFile(properties, file) {
 }
 
 void processJson(properties, object) {
-    object.each {
-        entry -> {
-            if(entry.value instanceof Map) {
-                processJson(properties, entry.value)
-            } else if(properties.keySet().contains(entry.key)) {
-                entry.value = properties.get(entry.key)
-                if(entry.value.isNumber()) {
-                    entry.value = entry.value.toInteger()
-                }
+    object.each { entry -> 
+        if(entry.value instanceof Map) {
+            processJson(properties, entry.value)
+        } else if(properties.keySet().contains(entry.key)) {
+            entry.value = properties.get(entry.key)
+            if(entry.value.isNumber()) {
+                entry.value = entry.value.toInteger()
             }
         }
     }
