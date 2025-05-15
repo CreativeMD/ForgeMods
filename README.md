@@ -2,7 +2,11 @@
 
 Repository for all the mods.
 
-## Setup
+## Instructions
+- Clone Setup from above
+- Checkout the looked branch
+- Run in terminal `git submodule update --init`
+- Run `build`
 
 Feel free to exclude mods in `settings.gradle`.
 
