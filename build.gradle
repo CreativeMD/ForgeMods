@@ -9,8 +9,7 @@ gradle.afterProject { project ->
         project.tasks.getByName("processResources") {
             outputs.upToDateWhen { false }
             filesMatching('pack.mcmeta') {
-                processJsonFile([description: project.mod_name + " resources", pack_format: resource_pack_format,
-                "forge:resource_pack_format": resource_pack_format, "forge:data_pack_format": data_pack_format], getFile())
+                processJsonFile([description: project.mod_name + " resources", min_format: resource_pack_min_format, max_format: resource_pack_max_format, "forge:data_pack_format": data_pack_format], getFile())
             }
             filesMatching('META-INF/neoforge.mods.toml') {
                 def lines = [
