@@ -24,7 +24,7 @@ buildscript {
 }
 
 plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.5.0'
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
 }
 
 rootProject.name = '1.20_forge'
@@ -39,8 +39,5 @@ include 'ItemPhysic'
 include 'ItemPhysicLite'
 include 'OpticManager'
 include 'PlayerRevive'
-include 'LittleTiles'
-include 'LittleTilesImportOld'
-include 'LittleFrames'
 include 'Spice-of-Life'
 include 'NoDurabilityLost'

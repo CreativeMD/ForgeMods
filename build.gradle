@@ -1,3 +1,7 @@
+plugins {
+    id 'net.darkhax.curseforgegradle' version '1.1.+'
+}
+
 import groovy.json.*
 
 gradle.afterProject { project ->
@@ -23,6 +27,10 @@ gradle.afterProject { project ->
                     '    displayURL="' + project.mod_display_url + '"',
                     '    authors="' + project.mod_authors + '"',
                     "    description='''" + project.mod_description + "'''",
+                ]
+                if (project.hasProperty("modProperties") && project.modProperties != "[]")
+                    lines.addAll(project.modProperties);
+                lines.addAll([
                     '',
                     '[[dependencies.' + project.mod_id + ']]',
                     '    modId="forge"',
@@ -38,7 +46,7 @@ gradle.afterProject { project ->
                     '    ordering="NONE"',
                     '    side="BOTH"',
                     '',
-                ]
+                ]);
                 if (project.hasProperty("modDependencies")) {
                     project.modDependencies.each {
                         dependency -> {
@@ -56,17 +64,147 @@ gradle.afterProject { project ->
                         }
                     }                    
                 }
+                
                 BufferedWriter writer = new BufferedWriter(new FileWriter(file));
                 lines.each {
                     line -> {
                         writer.write(line)
-                        writer.newLine()
+                        writer.write("\r\n")
                     }
                 }
                 writer.close();
             }
         }
+        
+        project.java.withSourcesJar()
+        
+        def modFilePrefix = "FORGE"
+        if (project.hasProperty("mod_release_suffix") && project.mod_release_suffix != "") {
+            modFilePrefix = project.mod_release_suffix
+        }
+        
+        project.jar {
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
+            archiveFileName.set(project.mod_name + "_" + modFilePrefix + "_v" + project.mod_version + "_mc" + project.minecraft_version + ".jar")
+            manifest {
+                attributes([
+                    "Specification-Title": project.mod_name,
+                    "Specification-Vendor": "CreativeMD",
+                    "Specification-Version": project.mod_version,
+                    "Implementation-Title": project.mod_name,
+                    "Implementation-Version"  : project.mod_version,
+                    "Implementation-Vendor": "CreativeMD",
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+                ])
+            }
+        }
+        
+        project.sourcesJar {
+             archiveFileName.set(project.mod_name + "_" + modFilePrefix + "_SOURCE_v" + project.mod_version + "_mc" + project.minecraft_version + ".jar")
+             exclude('assets/*')
+             exclude('data/*')
+        }
+        
+        project.tasks.withType(JavaCompile).configureEach {
+            options.encoding = 'UTF-8'
+        }
+        
+        project.tasks.register('upload', GradleBuild) {
+            description 'Uploads new version to modrinth and curseforge.'
+            group = 'publishing'
+            tasks = ['curseforge', 'modrinth']
+        }
+        
+        project.gradle.taskGraph.whenReady {
+            if (it.hasTask(project.tasks.modrinth) || (project.curse_id != "" && it.hasTask(project.tasks.curseforge))) {
+                if (!getChangelogText(project)?.trim()) {
+                    throw new GradleException('No changelog provided')
+                }
+            }
+        }
+        
+        project.tasks.modrinth.enabled = System.getenv("MODRINTH_TOKEN") != null
+        project.tasks.modrinth.group = 'publishing'
+        project.modrinth {
+            token = System.getenv("MODRINTH_TOKEN")
+            if (project.hasProperty("modrinth_id")) {
+                projectId = project.modrinth_id
+            } else {
+                projectId = project.mod_id
+            }
+            versionNumber = project.mod_version
+            versionType = project.release_type
+            uploadFile = project.jar
+            gameVersions = [ project.minecraft_version ]
+            changelog = getChangelogText(project)
+            loaders = [ "forge" ]
+            dependencies {
+                if (project.hasProperty("modDependencies") && project.modDependencies instanceof List) {
+                    project.modDependencies.each {
+                        dependency -> {
+                            required.project dependency["modId"]
+                        }
+                    }                    
+                }
+            }
+            additionalFiles = [ project.sourcesJar ]
+        }
+        
+        if(project.curse_id != "") {
+            project.tasks.register("curseforge", net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+                group = 'publishing'
+                apiToken = System.getenv("CURSEFORGE_TOKEN") != null ? System.getenv("CURSEFORGE_TOKEN") : "empty"
+                disableVersionDetection()
+                
+                def mainFile = upload(project.curse_id, project.jar)
+                mainFile.releaseType = project.release_type
+                mainFile.changelog = getChangelogText(project)
+                mainFile.changelogType = 'markdown'
+                mainFile.addModLoader("forge")
+                mainFile.addGameVersion(project.minecraft_version)
+                if (project.hasProperty("modSides") && project.modSides instanceof List && !project.modSides.isEmpty()) {
+                    project.modSides.each {
+                        side -> {
+                            mainFile.addEnvironment(side)
+                        }
+                    }
+                } else {
+                    mainFile.addEnvironment("client", "server")
+                }
+                if (project.hasProperty("modDependencies") && project.modDependencies instanceof List && !project.modDependencies.isEmpty()) {
+                    project.modDependencies.each {
+                        dependency -> {
+                            mainFile.addRequirement(dependency["modId"])
+                        }
+                    }
+                }
+                
+                def sourcesFile = mainFile.withAdditionalFile(project.sourcesJar)
+                sourcesFile.changelog = getChangelogText(project)
+                sourcesFile.changelogType = 'markdown'
+            }
+        }
     }
+}
+
+String getChangelogText(project) {
+    String result = ''
+    boolean first = true
+    project.file('changelog.txt').readLines().find {
+        if (first) {
+            if (it.equals(project.mod_version)) {
+                first = false
+            }
+            return false
+        } else if (!it?.trim()) {
+            return true
+        } else {
+            result += "* " + it + "\n"
+            return false
+        }
+    }
+    
+    return result
 }
 
 void processJsonFile(properties, file) {
@@ -74,7 +212,7 @@ void processJsonFile(properties, file) {
     def input = new JsonSlurper().parseText(fileContents)
     processJson(properties, input)
     BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-    writer.write(JsonOutput.prettyPrint(JsonOutput.toJson(input)));
+    writer.write(JsonOutput.prettyPrint(JsonOutput.toJson(input)).replace("\n", "\r\n"));
     writer.close();
 }
 
