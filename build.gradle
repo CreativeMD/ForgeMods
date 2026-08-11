@@ -20,7 +20,7 @@ gradle.afterProject { project ->
                     '',
                     '[[mods]]',
                     '    modId="' + project.mod_id + '"',
-                    '    logoFile="' + project.mod_id + '.png"',
+                    '    iconFile="' + project.mod_id + '.png"',
                     '    version="' + project.mod_version + '"',
                     '    displayName="' + project.mod_name + '"',
                     '    displayURL="' + project.mod_display_url + '"',
