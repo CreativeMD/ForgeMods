@@ -115,6 +115,15 @@ gradle.afterProject { project ->
             tasks = ['curseforge', 'modrinth']
         }
         
+        project.gradle.projectsEvaluated {
+            project.tasks.modrinth.configure {
+                dependsOn 'reobfJar'
+            }
+            project.tasks.curseforge.configure {
+                dependsOn 'reobfJar'
+            }
+        }
+        
         project.gradle.taskGraph.whenReady {
             if (it.hasTask(project.tasks.modrinth) || (project.curse_id != "" && it.hasTask(project.tasks.curseforge))) {
                 if (!getChangelogText(project)?.trim()) {
