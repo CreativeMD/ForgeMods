@@ -20,12 +20,12 @@ gradle.afterProject { project ->
                     '',
                     '[[mods]]',
                     '    modId="' + project.mod_id + '"',
-                    '    iconFile="' + project.mod_id + '.png"',
                     '    version="' + project.mod_version + '"',
                     '    displayName="' + project.mod_name + '"',
                     '    displayURL="' + project.mod_display_url + '"',
                     '    authors="' + project.mod_authors + '"',
                     "    description='''" + project.mod_description + "'''",
+                    '    iconFile="' + project.mod_id + '.png"',
                 ]
                 if (project.hasProperty("modProperties") && project.modProperties != "[]")
                     lines.addAll(project.modProperties);
