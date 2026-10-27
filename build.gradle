@@ -1,5 +1,5 @@
 plugins {
-    id 'net.darkhax.curseforgegradle' version '1.1.+'
+    id 'net.darkhax.curseforgegradle' version '1.3.+'
 }
 
 import java.util.jar.*;
@@ -294,7 +294,7 @@ gradle.afterProject { project ->
                         }
                     }
                 } else {
-                    mainFile.addEnvironment("client", "server")
+                    mainFile.addEnvironment("Client", "Server")
                 }
                 if (project.hasProperty("modDependencies") && project.modDependencies instanceof List && !project.modDependencies.isEmpty()) {
                     project.modDependencies.each {
@@ -307,6 +307,9 @@ gradle.afterProject { project ->
                 def sourcesFile = mainFile.withAdditionalFile(project.sourcesJar)
                 sourcesFile.changelog = getChangelogText(project)
                 sourcesFile.changelogType = 'markdown'
+                // Work around child validation in CurseForgeGradle 1.3.33; omitted from upload metadata.
+                // Remove once https://github.com/Darkhax/CurseForgeGradle/issues/35 is fixed upstream.
+                sourcesFile.gameVersions.addAll(mainFile.gameVersions);
             }
         }
     }
